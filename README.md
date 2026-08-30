@@ -10,7 +10,7 @@
 
 ## Instructions
 1. Download the `repair.bat` file from the repository.
-   * *You can click <a href="https://downgit.github.io/#/home?url=https://github.com/gvqz/winrepair/raw/main/repair.bat" download="repair.bat">here</a> to download the file directly.*
+   * *You can click <a href="https://github.com/gvqz/winrepair/releases/download/v3/repair.bat" download="repair.bat">here</a> to download the file directly.*
 2. Double-click the file. It will open a prompt asking for Administrative privileges.
 3. Select a task from the interactive menu by **typing** the corresponding number/letter and pressing **Enter**:
    * **0**: Reviews System Health (Disk space, pending reboots, uptime, pending updates, S.M.A.R.T. status).
