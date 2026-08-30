@@ -12,20 +12,31 @@
 1. Download the `repair.bat` file from the repository.
    * *You can click <a href="https://downgit.github.io/#/home?url=https://github.com/gvqz/winrepair/raw/main/repair.bat" download="repair.bat">here</a> to download the file directly.*
 2. Double-click the file. It will open a prompt asking for Administrative privileges.
-3. Select a task from the interactive menu by **typing** the corresponding number (**1-6**) and pressing **Enter**:
-   * 1: Removes temporary files and prefetch cache.
-   * 2: Runs SFC and DISM health restores.
-   * 3: Clears the Windows Update cache and resets services.
-   * 4: Flushes DNS and resets the IP stack/Winsock.
-   * 5: Checks the S.M.A.R.T. status of your physical disks.
-   * 6: Executes all of the above tasks in sequence.
-4. A `Repair_Log.txt` is automatically generated on the Desktop to document all actions and timestamps.
-5. If running a full repair, restart the computer to apply system changes.
+3. Select a task from the interactive menu by **typing** the corresponding number/letter and pressing **Enter**:
+   * **0**: Reviews System Health (Disk space, pending reboots, uptime, pending updates, S.M.A.R.T. status).
+   * **1**: Removes temporary files and resets the Microsoft Store cache.
+   * **2**: Runs DISM RestoreHealth, SFC scan, and optional Component Store cleanup.
+   * **3**: Clears the Windows Update cache and resets update services.
+   * **4**: Flushes DNS and resets the IP stack/Winsock.
+   * **5**: Exports System Error events from the last 24 hours to a readable text file.
+   * **6**: Opens standard Windows Disk Cleanup.
+   * **7**: Runs a read-only disk error scan (`chkdsk /scan`).
+   * **8**: Executes all of the above tasks in a full repair sequence.
+   * **D**: Removes old driver packages for non-present devices.
+   * **R**: Creates a System Restore Point.
+   * **G**: Opens the online command guide.
+   * **Q**: Quits the script.
+4. A `WinRepair_Logs` folder is automatically generated on the Desktop. It contains:
+   * `ActionLog.txt`: Timestamped log of all actions taken by the script.
+   * `Last_Run_Summary.txt`: Overview of the last run and any tasks that failed.
+   * `RecentErrors.txt`: Exported Windows System errors (if option 5 or 8 was run).
+   * `Battery_Report.html` & `Driver_Store_Cleanup.txt`: Additional health and cleanup reports.
+5. If running a full repair or resetting the network/update stack, restart the computer to apply system changes.
 
 ---
 
 ## Manual Commands (No Download)
-If you prefer not to run the script, you can perform these actions manually. Open **Command Prompt (Admin)** or **PowerShell (Admin)** and run these commands:
+If you prefer not to run the script, you can perform these actions manually. Open **Command Prompt (Admin)** and run these commands:
 
 ### 1. System File & Image Repair
 ```cmd
@@ -45,20 +56,23 @@ netsh int ip reset
 net stop wuauserv
 net stop bits
 net stop cryptsvc
-rd /s /q %systemroot%\SoftwareDistribution
+:: Rename folders so Windows rebuilds them safely (alternative to deleting)
+ren %systemroot%\SoftwareDistribution SoftwareDistribution.old
+ren %systemroot%\System32\catroot2 catroot2.old
 net start wuauserv
 net start bits
 net start cryptsvc
 ```
 
-### 4. Hardware Disk Health (PowerShell)
-```powershell
-Get-PhysicalDisk | Select-Object FriendlyName, HealthStatus, OperationalStatus
+### 4. Hardware Disk Health (uses PowerShell)
+```cmd
+powershell "Get-PhysicalDisk | Select-Object FriendlyName, HealthStatus, OperationalStatus"
 ```
 
 ### 5. Quick Clean (Temporary Files)
 ```cmd
 del /q /f /s %TEMP%\*
 del /q /f /s C:\Windows\Temp\*
-del /q /f /s C:\Windows\Prefetch\*
+:: Reset Microsoft Store cache (Run in Run dialog or regular CMD)
+wsreset.exe
 ```
